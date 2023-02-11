@@ -30,12 +30,21 @@ namespace TicTacToeConsole
                     {
                         cellValue = Console.ReadLine() ?? "";
                         if ((!(isOk = int.TryParse(cellValue, out int _))) && cellValue != SAVE_GAME_KEY)
+                        {
                             PrintWarning("Please enter a valid number between 1 and 9.");
+                        }
                         else if ((int.Parse(cellValue) <= 9 && int.Parse(cellValue) >= 1) && cellValue != SAVE_GAME_KEY)
+                        {
                             if (!(isOk = game.Field.GetCellsValues().Contains(cellValue)))
+                            {
                                 PrintWarning($"Cell \"{cellValue}\" is already set.");
-                        else if (!(isOk = game.Field.GetCellsValues().Contains(cellValue)) && cellValue != SAVE_GAME_KEY)
-                            PrintWarning($"There's no cell \"{cellValue}\" on the field. Try to enter again.");
+                            }
+                        }
+                        else if ((int.Parse(cellValue) > 9 || int.Parse(cellValue) < 1) && cellValue != SAVE_GAME_KEY)
+                        {
+                            if (!(isOk = game.Field.GetCellsValues().Contains(cellValue)))
+                                PrintWarning($"There's no cell \"{cellValue}\" on the field. Try to enter again.");
+                        }
                     } while (!isOk && cellValue != SAVE_GAME_KEY);
                     if (cellValue == SAVE_GAME_KEY)
                         jsonFileConvertorHelper.SerializeObjectToFile(game);
