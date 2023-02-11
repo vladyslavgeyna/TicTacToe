@@ -1,5 +1,4 @@
-﻿using System.Text.Json;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using TicTacToeClassLibrary;
 
 namespace TicTacToeConsole
@@ -8,46 +7,41 @@ namespace TicTacToeConsole
     {
         static void Main(string[] args)
         {
+            const string SAVE_GAME_KEY = "S", SAVED_GAME_FILE_PATH = "../../../game.json";
             try
             {
-                Game? game = JsonConvert.DeserializeObject<Game>(File.ReadAllText("game.json"));
+                JsonFileConvertorHelper jsonFileConvertorHelper = new JsonFileConvertorHelper(SAVED_GAME_FILE_PATH);
+                Game? game = jsonFileConvertorHelper.DeserializeObjectFromFile<Game>();
                 if (game == null)
                 {
                     PrintWarning("No saved game was found!");
                     game = new Game();
                 }
-                string[] fieldArgs = new string[9];
-                for (int i = 0; i < fieldArgs.Length; i++)
-                    fieldArgs[i] = game.Field.ConvertCellsToArray()[i].Value;
                 PrintHeader(game.Players);
                 string cellValue;
                 bool isOk, check = true;
                 int currentPlayerId;
-                PrintField(fieldArgs);
+                PrintField(game.Field.GetCellsValues());
                 Player? winnerPlayer = null;
                 while (!game.IsTheEnd())
                 {
-                    currentPlayerId = check ? 1 : 2;
+                    currentPlayerId = check ? game.Players[0].Id : game.Players[1].Id;
                     Console.WriteLine($"Player {currentPlayerId}'s turn. Select from 1 to 9 from the game board.");
                     do
                     {
                         cellValue = Console.ReadLine() ?? "";
-                        if (!(isOk = fieldArgs.Contains(cellValue)) && cellValue != "S")
+                        if (!(isOk = game.Field.GetCellsValues().Contains(cellValue)) && cellValue != SAVE_GAME_KEY)
                             PrintWarning($"There's no cell {cellValue} on the field. Try to enter again.");
-                    } while (!isOk && cellValue != "S");
-                    if (cellValue == "S")
-                    {
-                        string jsonString = JsonConvert.SerializeObject(game);
-                        File.WriteAllText("game.json", jsonString);
-                    }
+                    } while (!isOk && cellValue != SAVE_GAME_KEY);
+                    if (cellValue == SAVE_GAME_KEY)
+                        jsonFileConvertorHelper.SerializeObjectToFile(game);
                     else
                     {
                         string sign = game.Players.Where(player => player.Id == currentPlayerId).First().Sign;
-                        fieldArgs[fieldArgs.ToList().IndexOf(cellValue)] = sign;
                         game.Field.ReplaceCellValueByCurrentValue(cellValue, sign);
                         Console.Clear();
                         PrintHeader(game.Players);
-                        PrintField(fieldArgs);
+                        PrintField(game.Field.GetCellsValues());
                         check = !check;
                         winnerPlayer = game.GetWinnerOrDefault();
                         if (winnerPlayer != null)
@@ -58,6 +52,7 @@ namespace TicTacToeConsole
                     Console.WriteLine($"Player {winnerPlayer.Id} wins");
                 else
                     Console.WriteLine("It’s a draw");
+                jsonFileConvertorHelper.ClearFileContent();
             }
             catch
             {

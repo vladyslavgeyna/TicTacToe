@@ -4,6 +4,15 @@
     {
         private const int _SIZE = 3;
         public Cell[,] Cells { get; set; }
+        public string[] GetCellsValues()
+        {
+            string[] values = new string[_SIZE * _SIZE];
+            int counter = 0;
+            for (int i = 0; i < _SIZE; i++)
+                for (int j = 0; j < _SIZE; j++)
+                    values[counter++] = Cells[i, j].Value;
+            return values;
+        }
         public Field()
         {
             Cells = new Cell[_SIZE, _SIZE];
