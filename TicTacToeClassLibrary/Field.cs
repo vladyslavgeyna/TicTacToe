@@ -20,7 +20,7 @@
             for (int i = 0; i < _SIZE; i++)
                 for (int j = 0; j < _SIZE; j++)
                     Cells[i, j] = new Cell(counter++.ToString());
-        }
+        } 
         public void ReplaceCellValueByCurrentValue(string currentValue, string newValue)
         {
             for (int i = 0; i < Cells.GetLength(0); i++)

@@ -6,10 +6,10 @@ namespace TicTacToeConsole
     {
         static void Main(string[] args)
         {
-            const string SAVE_GAME_KEY = "S", SAVED_GAME_FILE_PATH = "../../../game.json";
+            string saveGameKey = "S", savedGameFilePath = Directory.GetCurrentDirectory() + "\\game.json";
             try
             {
-                JsonFileConvertorHelper jsonFileConvertorHelper = new JsonFileConvertorHelper(SAVED_GAME_FILE_PATH);
+                JsonFileConvertorHelper jsonFileConvertorHelper = new JsonFileConvertorHelper(savedGameFilePath);
                 Game? game = jsonFileConvertorHelper.DeserializeObjectFromFile<Game>();
                 if (game == null)
                 {
@@ -29,25 +29,30 @@ namespace TicTacToeConsole
                     do
                     {
                         cellValue = Console.ReadLine() ?? "";
-                        if ((!(isOk = int.TryParse(cellValue, out int _))) && cellValue != SAVE_GAME_KEY)
+                        if ((!(isOk = int.TryParse(cellValue, out int _))) && cellValue != saveGameKey)
                         {
                             PrintWarning("Please enter a valid number between 1 and 9.");
                         }
-                        else if ((int.Parse(cellValue) <= 9 && int.Parse(cellValue) >= 1) && cellValue != SAVE_GAME_KEY)
+                        else if (cellValue != saveGameKey && (int.Parse(cellValue) <= 9 && int.Parse(cellValue) >= 1))
                         {
                             if (!(isOk = game.Field.GetCellsValues().Contains(cellValue)))
                             {
                                 PrintWarning($"Cell \"{cellValue}\" is already set.");
                             }
                         }
-                        else if ((int.Parse(cellValue) > 9 || int.Parse(cellValue) < 1) && cellValue != SAVE_GAME_KEY)
+                        else if (cellValue != saveGameKey && (int.Parse(cellValue) > 9 || int.Parse(cellValue) < 1))
                         {
                             if (!(isOk = game.Field.GetCellsValues().Contains(cellValue)))
                                 PrintWarning($"There's no cell \"{cellValue}\" on the field. Try to enter again.");
                         }
-                    } while (!isOk && cellValue != SAVE_GAME_KEY);
-                    if (cellValue == SAVE_GAME_KEY)
+                    } while (!isOk && cellValue != saveGameKey);
+                    if (cellValue == saveGameKey)
+                    {
                         jsonFileConvertorHelper.SerializeObjectToFile(game);
+                        Console.Clear();
+                        PrintHeader(game.Players);
+                        PrintField(game.Field.GetCellsValues());
+                    }
                     else
                     {
                         string sign = game.Players.Where(player => player.Id == currentPlayerId).First().Sign;
